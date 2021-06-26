@@ -1,0 +1,74 @@
+\documentclass[10pt]{scrartcl}
+\usepackage[default]{Formatting}
+\usepackage{amsmath}
+\usepackage{calligra}
+\usepackage[T1]{fontenc}
+\usepackage{siunitx}
+\allowdisplaybreaks
+\title{MathLeague High School Nationals 2021}
+\subtitle{Power Round 12107 and 12108}
+\author{Wentinn Liao}
+\renewcommand\theauthor\thesubtitle
+\date{Saturday, Jun 12th 2021}
+
+\begin{document}
+	\maketitle
+	\slp{0}
+	\section{Value of M and Equality Case}
+	The maximum value $M$ such that for all positive integers $2 \leq n \leq M$, $L(n) \leq 0$ is actually $906150256$. Although there are many smaller values of $n$ for which $L(n)$ equals 0, $906150256$ is the first such that $L(n + 1) = 1$. The list of values for which $L(n) = 0$ is $2, 4, 6, 10, 16, 26, 40, 96, 586, 906150256, \ldots$. Note that given problem 10 ($\pi(n) - \pi(\sqrt{n}) \geq 1 - L(n)$) is a stronger statement than problem 9, there is clearly no equality case for problem 9. There is currently no synthetic proof that no equality case exists for problem 10, but mass computations show that there are a couple cases from $2$ to $M$ where $\pi(n) - \pi(\sqrt{n}) = 2 - L(n)$, but not $1 - L(n)$.
+	
+	\section{L(n) Asymptotics}
+	It was conjectured (Tanaka 1980, OEIS A028488) that although $L(906150256) = 0$ and the number of primes below that can be approximated by $\pi(n) \approx \frac{n}{\ln n} \approx 43935163$, $L(n)$ actually increases quickly enough to catch back up to $\pi(n)$. Furthermore, given $L(n) + \pi(n) - 1$ changes sign infinitely often, it can be proven that $L(n) = \,\sim\pi(n)$.
+	
+	\section{Problem 7 Extension to Real Numbers}
+	We can show that $\floor{\frac{x}{d}} = \floor{\frac{\floor{x}}{d}}$. If we allow $x = pd + q + r$ where $p$ is an integer, $q$ is a positive integer $0 \leq q < d$, and $r$ is some real number where $r \in [0, 1)$. Since $q < d$ and both $q$ and $d$ are integers, $q + r < d$ as well. Thus, $pd \leq x < (p + 1)d$ so $\floor{\frac{x}{d}} = p$. Then, $\floor{x} = pd + q$ and $pd \leq \floor{x} < (p + 1)d$ so $\floor{\frac{\floor{x}}{d}} = p$, completing the proof. This allows us to extend problem 7 all positive real numbers, i.e.
+	
+	\begin{align*}
+		\dsl{d \in \mc{F}}{} L\paren{\frac{x}{d}}
+		& = \dsl{d \in \mc{F}}{} L\paren{\floor{\frac{x}{d}}} \\
+		& = \dsl{d \in \mc{F}}{} L\paren{\floor{\frac{\floor{x}}{d}}} \\
+		& = \dsl{d \in \mc{F}}{} L\paren{\frac{\floor{x}}{d}} = 1
+	\end{align*}
+
+	Now, note that this infinite sum is actually constant over all real numbers $x$. Since for large numbers $L(x)$ can be approximated by $\pi(x)$ which in turn follows the logarithmic integral $\dsi{0}{x} \frac{1}{\ln t}\,dt$, what happens when we try to take the derivative of the infinite sum with respect to $x$?
+	
+	\newpage
+	We then get
+	
+	\begin{align*}
+		0
+		& = \der{}{x} 1 \\
+		& = \der{}{x} \dsl{d \in \mc{F}}{} L\paren{\frac{x}{d}} \\
+		& = \dsl{d \in \mc{F}}{} \der{}{x} L\paren{\frac{x}{d}} \\
+		& \approx \dsl{d \in \mc{F}}{} \der{}{x} \dsi{0}{\frac{x}{d}} \frac{1}{\ln t}\,dt \\
+		& = \dsl{d \in \mc{F}}{} \frac{1}{d\ln\paren{\frac{x}{d}}} \\
+		& = \dsl{d \in \mc{F}}{} \frac{1}{d\paren{\ln x - \ln d}}
+	\end{align*}
+
+	What happens when $x$ approaches some squarefree number $d \in \mc{F}$? The single term $\frac{1}{d\paren{\ln x - \ln d}}$ goes to infinity. Well, consider some squarefree positive integer $n$ with prime factorization $p_{x_1}p_{x_2} \ldots p_{x_k}$, and consider the set of squarefree integers that are divisible by $n$, and denote $\mc{F}'$ to be the set of squarefree integers that are relatively prime to $x$. Then, the infinite sum
+	
+	\begin{align*}
+		\dsl{\substack{d \in \mc{F} \\ n \mid d}}{} \frac{1}{d(\ln n - \ln d)}
+		= -\frac{1}{n}\dsl{d \in \mc{F}'}{} \frac{1}{d \ln d}
+	\end{align*}
+
+	actually diverges to meet the infinite term. When $x$ does not yet equal $n$, this specific set does not yet diverge, and the sum still approximately equals 0.
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

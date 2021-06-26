@@ -1,0 +1,377 @@
+\documentclass[10pt]{scrartcl}
+\usepackage[default]{Formatting}
+\usepackage{amsmath}
+\usepackage{calligra}
+\usepackage[T1]{fontenc}
+\usepackage{siunitx}
+\allowdisplaybreaks
+\title{Mixture Equation of State}
+\subtitle{LLNL Intership Summer 2021}
+\author{Wentinn Liao}
+\renewcommand\theauthor\thesubtitle
+\date{Saturday, May 22nd 2021}
+
+\begin{document}
+	\maketitle
+	\slp{0}
+	\section{Induction}
+	Suppose given $V = \sum x_jV_j(T, P_j) = \sum x_jV_j(T, P_{base} + \De P_j)$, we let $\chi_j = \frac{x_j}{1 - x_c}$ for $1 \leq j < c$ so $\sum\chi_j = 1$. Then, define $\mc{V}$ and $\mc{F}$ to be
+	
+	\begin{equation}
+		\mc{V}(T, P_{base}) = \sum\chi_jV_j(T, P_j) = \sum\chi_jV_j(T, P_{base} + \De P_j)
+	\end{equation}
+	\begin{equation}
+		\mc{F}(T, P_{base}) = \sum\chi_jF_j\paren{T, \frac{M_j}{V_j(T, P_{base} + \De P_j)}} + \mc{C}T
+	\end{equation}
+
+	where $\mc{C}$ is some constant. \newline
+	
+	I place emphasis on the fact that $\mc{V}, \mc{F}$ are defined such that the $P_{base}$ of $V, F$ and that of $\mc{V}, \mc{F}$ are equal. Since equations either represent a shift in Degrees of Freedom, or a resolution of conflict thereof, in $(1)$ we choose not to write $P_j$ or $P_{base}$ as a function of $\mc{V}$ to avoid an equation equivalent to $\mc{V} = \mc{V}$. Suffice it to say $P_j$ is still a function of $\mc{V}, T$ since $\mc{V}$ is a function of $T, P_j$. However, note that it is dangerous to use the notation $P_j = P_j(T, \mc{V})$ and $P_j = P_j(T, V)$ to represent $P_j$ as a function of either because $\{P_j(T, k) \mid k = \mc{V}\} \neq \{P_j(T, k) \mid k = V\}$. It follows that
+	
+	\begin{align*}
+		V(T, P_{base})
+		& = \sum x_jV_j(T, P_{base} + \De P_j) \\
+		& = x_cV_c(T, P_{base} + \De P_c) + \dsl{}{c - 1}x_jV_j(T, P_{base} + \De P_j) \\
+		& = x_cV_c(T, P_{base} + \De P_c) + (1 - x_c)\sum\chi_jV_j(T, P_{base} + \De P_j) \\
+		& = x_cV_c(T, P_{base} + \De P_c) + (1 - x_c)\mc{V}(T, P_{base}) \numbereq \\
+		& \\	
+		F(T, P_{base})
+		& = \sum x_jF_j\paren{T, \frac{M_j}{V_j(T, P_{base} + \De P_j)}} + \mc{C}T \\
+		& = x_cF_c\paren{T, \frac{M_c}{V_c(T, P_{base} + \De P_c)}} + \dsl{}{c - 1}x_jF_j\paren{T, \frac{M_j}{V_j(T, P_{base} + \De P_j)}} + \mc{C}T\\
+		& = x_cF_c\paren{T, \frac{M_c}{V_c(T, P_{base} + \De P_c)}} + (1 - x_c)\sum\chi_jF_j\paren{T, \frac{M_j}{V_j(T, P_{base} + \De P_j)}} + \mc{C}T \\
+		& = x_cF_c\paren{T, \frac{M_c}{V_c(T, P_{base} + \De P_c)}} + (1 - x_c)\mc{F}(T, P_{base}) + \mc{C}T \numbereq
+	\end{align*}
+
+	Allowing $\mc{P} = -\cpd{\mc{F}}{\mc{V}}_T$ and $\mc{E} = -T^2\cpd{(\mc{F} / T)}{T}_\mc{V}$, we can write
+	
+	\begin{equation}
+		\mc{P}
+		= \frac{1}{\sum\frac{\chi_jV_j}{B_j}}\sum\paren{\frac{\chi_jV_j}{B_j}}P_j
+		= \frac{1 - x_c}{\dsl{}{c - 1}\frac{x_jV_j}{B_j}}\dsl{}{c - 1}\paren{\frac{1}{1 - x_c}\frac{x_jV_j}{B_j}}P_j = \frac{1}{\dsl{}{c - 1}\frac{x_jV_j}{B_j}} \cdot \dsl{}{c - 1}\paren{\frac{x_jV_j}{B_j}}P_j
+	\end{equation}
+	\begin{equation}
+		\mc{E} = \sum\chi_jE_j = \frac{1}{1 - x_c}\dsl{}{c - 1}x_jE_j
+	\end{equation}
+
+	by induction hypothesis, where $B_j = -V_j\cpd{P_j}{V_j}_T \Rightarrow \cpd{V_j}{P_j}_T = -\frac{V_j}{B_j}$. Then we expanding $P = -\cpd{F}{V}_T$ we get
+	
+	\begin{align*}
+		P
+		& = -\cpd{F}{V}_T \\
+		& = -\paren{\pd{}{V}\paren{x_cF_c\paren{T, \frac{M_c}{V_c(T, P_{base} + \De P_c)}} + (1 - x_c)\mc{F} + \mc{C}T}}_T \\
+		& = -x_c\paren{\pd{}{V}F_c\paren{T, \frac{M_c}{V_c(T, P_{base} + \De P_c)}}}_T - (1 - x_c)\cpd{\mc{F}}{V}_T \\
+		& = -x_c\cpd{F_c}{V_c}_T\cpd{V_c}{P_{base}}_T\cpd{P_{base}}{V}_T - (1 - x_c)\cpd{\mc{F}}{\mc{V}}_T\cpd{\mc{V}}{V}_T \\
+		& = \cpd{P_{base}}{V}_T\paren{x_cP_c\cpd{V_c}{P_c}_T + (1 - x_c)\mc{P}\cpd{\mc{V}}{P_{base}}_T} \\
+		& = \frac{1}{\sum x_j\cpd{V_j}{P_{base}}_T} \cdot \paren{x_cP_c \cdot -\frac{V_c}{B_c} + (1 - x_c)\mc{P} \cdot \dsl{}{c - 1}\chi_j\cpd{V_j}{P_{base}}_T} \\
+		& = \frac{1}{\sum x_j\cpd{V_j}{P_j}_T} \cdot \paren{-\frac{x_cV_c}{B_c} \cdot P_c + \mc{P}\dsl{}{c - 1}\paren{(1 - x_c)\chi_j}\cpd{V_j}{P_j}_T} \\
+		& = \frac{-1}{\sum \frac{x_jV_j}{B_j}} \cdot \paren{-\frac{x_cV_c}{B_c} \cdot P_c + \mc{P}\dsl{}{c - 1}x_j \cdot -\frac{V_j}{B_j}} \\
+		& = \frac{1}{\sum \frac{x_jV_j}{B_j}} \cdot \paren{\frac{x_cV_c}{B_c} \cdot P_c + \frac{1}{\dsl{}{c - 1}\frac{x_jV_j}{B_j}} \cdot \dsl{}{c - 1}\paren{\frac{x_jV_j}{B_j}}P_j \cdot \dsl{}{c - 1}\frac{x_jV_j}{B_j}} \\
+		& = \underline{\frac{1}{\sum\frac{x_jV_j}{B_j}} \cdot \sum \paren{\frac{x_jV_j}{B_j}}P_j} \numbereq
+	\end{align*}
+	
+	as desired. Expanding $E = -T^2\cpd{(F / T)}{T}_V$, we get
+	
+	\begin{align*}
+		E
+		& = -T^2\cpd{(F / T)}{T}_V \\
+		& = -T^2\paren{\pd{}{T}\paren{\frac{1}{T}\paren{x_cF_c\paren{T, \frac{M_c}{V_c(T, P_{base} + \De P_c)}} + (1 - x_c)\mc{F}(T, P_{base}) + \mc{C}T}}}_V \\
+		& = x_c \cdot -T^2\paren{\pd{}{T}\paren{\frac{F_c\paren{T, \frac{M_c}{V_c(T, P_{base} + \De P_c)}}}{T}}}_V + (1 - x_c) \cdot -T^2\cpd{(\mc{F} / T)}{T}_V \\
+		\begin{split}
+			& = x_c \cdot -T^2\paren{\cpd{(F_c / T)}{T}_{V_c} + \cpd{(F_c / T)}{V_c}_T\paren{\cpd{V_c}{T}_{P_{base}} + \cpd{V_c}{P_{base}}_T \cdot \cpd{P_{base}}{T}_V}} \\
+			& \qquad\qquad + (1 - x_c) \cdot -T^2\paren{\cpd{(\mc{F} / T)}{T}_\mc{V} + \cpd{(\mc{F} / T)}{\mc{V}}_T\cpd{\mc{V}}{T}_V}
+		\end{split} \\
+		\begin{split}
+			& = x_cE_c - x_cT^2\paren{\frac{1}{T}\cpd{F_c}{V_c}_T\paren{\cpd{V_c}{T}_{P_c} + \cpd{V_c}{P_c}_T \cdot \cpd{P_{base}}{T}_V}} \\
+			& \qquad\qquad + (1 - x_c)\paren{\mc{E} - T\cpd{\mc{F}}{\mc{V}}_T\cpd{\mc{V}}{T}_V}
+		\end{split} \\
+		& = x_cE_c + x_cT \cdot P_c\paren{\cpd{V_c}{T}_{P_c} + \cpd{V_c}{P_c}_T \cdot \cpd{P_{base}}{T}_V} + (1 - x_c)\paren{\mc{E} + T\mc{P}\cpd{\mc{V}}{T}_V} \\
+		& = x_cE_c + \dsl{}{c - 1}x_jE_j + x_cT \cdot P_c\paren{\cpd{V_c}{T}_{P_c} - \frac{V_c}{B_c}\cpd{P_{base}}{T}_V} + (1 - x_c)T\mc{P}\cpd{\mc{V}}{T}_V \\
+		& = \sum x_jE_j + T \cdot x_cP_c\paren{\cpd{V_c}{T}_{P_c} - \frac{V_c}{B_c}\cpd{P_{base}}{T}_V} + T\mc{P}\cpd{(V- x_CV_c)}{T}_V \\
+		& = \sum x_jE_j + T \cdot x_cP_c\paren{\cpd{V_c}{T}_{P_c} - \frac{V_c}{B_c}\cpd{P_{base}}{T}_V} - x_c \cdot T\mc{P}\cpd{V_c}{T}_V \\
+		& = \sum x_jE_j + x_cT\paren{P_c\cpd{V_c}{T}_{P_c} - P_c\frac{V_c}{B_c}\cpd{P_{base}}{T}_V - \mc{P}\cpd{V_c}{T}_V} \numbereq
+	\end{align*}
+
+	It then suffices to show that
+	
+	\begin{equation}
+		\paren{\pd{V_c}{T}}_{P_c} - \frac{V_c}{B_c}\paren{\pd{P_{base}}{T}}_V = \frac{\mc{P}}{P_c}\paren{\pd{V_c}{T}}_V
+	\end{equation}
+	
+	Manipulating, we get
+	
+	\begin{align*}
+		& \cpd{V_c}{T}_{P_c} - \frac{V_c}{B_c}\cpd{P_{base}}{T}_V = \frac{\mc{P}}{P_c}\cpd{V_c}{T}_V \\ \Rightarrow\quad
+		& \cpd{V_c}{T}_{P_c} - \frac{V_c}{B_c}\cpd{P_{base}}{T}_V = \frac{\mc{P}}{P_c}\paren{\cpd{V_c}{T}_{P_c} + \cpd{V_c}{P_c}_T\cpd{P_c}{T}_V} \\ \Rightarrow\quad
+		& \cpd{V_c}{T}_{P_c} - \frac{V_c}{B_c}\cpd{P_{base}}{T}_V = \frac{\mc{P}}{P_c}\paren{\cpd{V_c}{T}_{P_c} - \frac{V_c}{B_c}\cpd{P_{base}}{T}_V} \\ \Rightarrow\quad
+		& \cpd{V_c}{T}_{P_c} = \frac{V_c}{B_c}\cpd{P_{base}}{T}_V \\ \Rightarrow\quad
+		& -\cpd{P_{base}}{V_c}_T\cpd{V_c}{T}_{P_c} = \cpd{P_{base}}{T}_V \\ \Rightarrow\quad
+		& \cpd{P_{base}}{T}_{V_c} = \cpd{P_{base}}{T}_V \\ \Rightarrow\quad
+		& \cpd{P_{base}}{V}_T\cpd{V}{T}_{V_c} = 0 \numbereq
+	\end{align*}
+
+	Dead end as neither are necessarily zero.
+	
+	\section{Delta Shifting}
+	The property $E = \sum x_jE_j$ is clearly true when $c = 1$, but the scenario in which there is only one pure substance can be considered as identical to a mixture of $c$ substances with $x_1 = 1$ and $x_j = 0$ for $j > 1$. It follows that since we want $E = \sum x_jE_j$ to be true for all $c$-\textit{tuples} $(x_1, x_2, x_3, \ldots)$ such that $\sum x_j = 1$ and all such tuples are achievable by making cumulative shifts of $(\ldots x_i, \ldots x_j, \ldots) \rightarrow (\ldots x_i + \delta x, \ldots x_j - \delta x, \ldots)$ that the property must hold before and after any shift. Consider $c$-\textit{tuple} $(\chi_1, \chi_2, \chi_3, \ldots)$ and define $(x_1, x_2, x_3, \ldots)$ where $x_j = \chi_j$ for all $j \neq r, s$ and $(x_r, x_s) = (\chi_r + \delta\chi, \chi_s - \delta\chi)$. With these coefficients, define
+	
+	\begin{align*}
+		\mc{V} = \sum\chi_jV_j,
+		& \qquad V = \sum x_jV_j \\
+		\mc{F} = \sum\chi_jF_j + \mc{C}T,
+		& \qquad F = \sum x_jF_j + \mc{C}T
+	\end{align*}
+
+	Then, writing $V, F$ in terms of $\mc{V}, \mc{F}$ we get
+	
+	\begin{equation}
+		V = \sum x_jV_j = \delta\chi\paren{V_r - V_s} + \sum\chi_jV_j = \delta\chi\paren{V_r - V_s} + \mc{V}
+	\end{equation}
+	\begin{equation}
+		F = \sum x_jF_j + \mc{C}T = \delta\chi\paren{F_r - F_s} + \sum\chi_jF_j + \mc{C}T = \delta\chi\paren{F_r - F_s} + \mc{F} + \mc{C}T
+	\end{equation}
+	As our base case $(1, 0, 0, 0, \ldots)$ is clearly true, by induction hypothesis suppose
+	
+	\begin{equation}
+		\mc{P} = -\cpd{\mc{F}}{\mc{V}}_T = \frac{1}{\sum\frac{\chi_jV_j}{B_j}} \cdot \sum\paren{\frac{\chi_jV_j}{B_j}}P_j
+	\end{equation}
+	\begin{equation}
+		\mc{E} = -T^2\cpd{(\mc{F} / T)}{T}_\mc{V} = \sum\chi_jE_j
+	\end{equation}
+
+	Expanding $P = -\cpd{F}{V}_T$ we get
+	
+	\begin{align*}
+		P
+		& = -\cpd{F}{V}_T \\
+		& = -\paren{\pd{}{V}\paren{\delta\chi\paren{F_r - F_s} + \mc{F} + \mc{C}T}}_T \\
+		& = -\delta\chi\paren{\cpd{F_r}{V}_T - \cpd{F_s}{V}_T} - \cpd{\mc{F}}{V}_T \\
+		& = -\delta\chi\paren{\cpd{F_r}{V_r}_T\cpd{V_r}{V}_T - \cpd{F_s}{V_s}_T\cpd{V_s}{V}_T} - \cpd{\mc{F}}{\mc{V}}_T\cpd{\mc{V}}{V}_T \\
+		& = \cpd{P_{base}}{V}_T\paren{\delta\chi\paren{P_r\cpd{V_r}{P_{base}}_T - P_s\cpd{V_s}{P_{base}}} + \mc{P}\cpd{\mc{V}}{P_{base}}_T} \\
+		& = -\cpd{P_{base}}{V}_T\paren{\delta\chi\paren{P_r \cdot \frac{V_r}{B_r} - P_s \cdot \frac{V_s}{B_s}} + \mc{P}\sum\frac{\chi_jV_j}{B_j}} \\
+		& = -\cpd{P_{base}}{V}_T\paren{\delta\chi\paren{P_r \cdot \frac{V_r}{B_r} - P_s \cdot \frac{V_s}{B_s}} + \sum\paren{\frac{\chi_jV_j}{B_j}}P_j} \\
+		& = -\cpd{P_{base}}{V}_T\sum\paren{\frac{x_jV_j}{B_j}}P_j \\
+		& = \underline{\frac{1}{\sum\frac{x_jV_j}{B_j}} \cdot \sum\paren{\frac{x_jV_j}{B_j}}P_j} \numbereq
+	\end{align*}
+
+	as desired. Now expanding $E = -T^2\cpd{(F / T)}{T}_V$ we get
+	
+	\begin{align*}
+		E
+		& = -T^2\cpd{(F / T)}{T}_V \\
+		& = -T^2\paren{\pd{}{T}\paren{\frac{1}{T}(\delta\chi(F_r - F_s) + \mc{F} + \mc{C}T)}}_V \\
+		& = -T^2\paren{\delta\chi\paren{\cpd{(F_r / T)}{T}_V - \cpd{(F_s / T)}{T}_V} + \cpd{(\mc{F} / T)}{T}_V} \\
+		\begin{split}
+			& = -T^2\delta\chi\paren{\cpd{(F_r / T)}{T}_{V_r} + \cpd{(F_r / T)}{V_r}_T\cpd{V_r}{T}_V - \cpd{(F_s / T)}{T}_{V_s} - \cpd{(F_s / T)}{V_s}_T\cpd{V_s}{T}_V} \\
+			& \qquad\qquad - T^2\paren{\cpd{(\mc{F} / T)}{T}_\mc{V} + \cpd{(\mc{F} / T)}{\mc{V}}_T\cpd{\mc{V}}{T}_V}
+		\end{split} \\
+		\begin{split}
+			& = \delta\chi\paren{(E_r - E_s) - T^2\paren{\cpd{(F_r / T)}{V_r}_T\cpd{V_r}{T}_V - \cpd{(F_s / T)}{V_s}_T\cpd{V_s}{T}_V}} \\
+			& \qquad\qquad + \paren{\mc{E} - T^2\cpd{(\mc{F} / T)}{\mc{V}}_T\cpd{\mc{V}}{T}_V}
+		\end{split} \\
+		& = \sum x_jE_j + \delta\chi T\paren{P_r\cpd{V_r}{T}_V - P_s\cpd{V_s}{T}_V} + T\mc{P}\cpd{\mc{V}}{T}_V \\
+		& = \sum x_jE_j + \delta\chi T\paren{P_r\cpd{V_r}{T}_V - P_s\cpd{V_s}{T}_V} + T\mc{P}\paren{\pd{}{T}(V - \delta\chi(V_r - V_s))}_V \\
+		& = \sum x_jE_j + \delta\chi T\paren{(P_r - \mc{P})\cpd{V_r}{T}_V - (P_s - \mc{P})\cpd{V_s}{T}_V} \numbereq
+	\end{align*}
+
+	Then, it suffices to show that
+	
+	\begin{equation}
+		(P_r - \mc{P})\cpd{V_r}{T}_V = (P_s - \mc{P})\cpd{V_s}{T}_V
+	\end{equation}
+
+	However, this result must hold true for all pairs of indices $(r, s)$ that we decide to shift from our starting point $(\chi_1, \chi_2, \chi_3, \ldots)$ and thus, $(P_j - \mc{P})\cpd{V_j}{T}_V$ must be constant with respect to index $j$. Given $c$ pure substances, consider some imaginary pure substance with $V^*(T, P_{base}), F^*\paren{T, \frac{M^*}{V^*}}$ such that the resulting $P^* = -\cpd{F^*}{V^*}_T$ satisfies
+	
+	\begin{equation}
+		P^* = \frac{1}{\sum\frac{x_jV_j}{B_j}} \cdot \sum\paren{\frac{x_jV_j}{B_j}}P_j
+	\end{equation}
+
+	It then follows that the pressure of a mixture of the original $c$ pure substance and this original substance will always equal $P^*$. Thus, choosing this imaginary substance as index $s$ in such a mixture of $c + 1$ substances will require $(P_r - \mc{P})\cpd{V_r}{T}_V = 0$. However since $P_r$ is not necessarily equal to $\mc{P}$, we get $\cpd{V_r}{T}_V = 0$ which is also not necessarily true.
+	
+	\section{Counterexample}
+	At this point I'm rather convinced that this is not actually true. We can note that both attempts at proving $E = \sum x_jE_j$ require $\cpd{V}{T}_{V_c} = 0$, $P_c = P$, or some other equivalent to be true. Additionally the inductive step should work regardless of which pure substance we use in conjunction with the induction hypothesis so $\cpd{V}{T}_{V_j} = 0$ should hold for all $j$. This of course is only true if all $V_j$ are proportional, that is, $\displaystyle\frac{V_i(T, P_{base})}{V_j(T, P_{base})} = \mc{C}_{i, j}$ for some constant $\mc{C}_{i, j}$ for all indices $1 \leq i, j \leq c$. Thus in theory, it should be simple to construct such a counterexample. \newline
+	
+	Consider the simple case of $c = 2$, $V_1 = k_1T^2P_{base}$ and $V_2 = k_2T^3P_{base}^2$ for some constants $k_1, k_2$. For simplicity, suppose that they are separate. Note the bulk moduli $B_1 = -V_1\cpd{P_{base}}{V_1}_T = -P_{base}$ and $B_2 = -V_2\cpd{P_{base}}{V_2}_T = -\frac{P_{base}}{2}$. As of right now, we won't even bother to set $F_1, F_2$ and $x_1, x_2$. Then, we get
+	
+	\begin{align*}
+		P
+		& = -\cpd{F}{V}_T \\
+		& = -x_1\cpd{F_1}{V_1}_T\cpd{V_1}{P_{base}}_T\cpd{P_{base}}{V}_T - x_2\cpd{F_2}{V_2}_T\cpd{V_2}{P_{base}}_T\cpd{P_{base}}{V}_T \\
+		& = \cpd{P_{base}}{V}_T\paren{x_1P_1\paren{k_1T^2} + x_2P_2\paren{2k_2T^3P_{base}}} \\
+		& = \frac{\paren{x_1P_1\paren{k_1T^2} + x_2P_2\paren{2k_2T^3P_{base}}}}{x_1\cpd{V_1}{P_{base}}_T + x_2\cpd{V_2}{P_{base}}} \\
+		& = \frac{\paren{x_1P_1\paren{k_1T^2} + x_2P_2\paren{2k_2T^3P_{base}}}}{x_1\paren{k_1T^2} + x_2\paren{2k_2T^3P_{base}}} \\
+		& = \underline{\frac{\paren{\frac{x_1V_1}{B_1}}P_1 + \paren{\frac{x_2V_2}{B_2}}P_2}{\frac{x_1V_1}{B_1} + \frac{x_2V_2}{B_2}}} \numbereq
+	\end{align*}
+
+	and
+	
+	\begin{align*}
+		E
+		& = -T^2\cpd{(F / T)}{T}_V \\
+		& = -T^2\paren{x_1\cpd{(F_1 / T)}{T}_V + x_2\cpd{(F_2 / T)}{T}_V} \\
+		\begin{split}
+			& = -x_1T^2\paren{\cpd{(F_1 / T)}{T}_{V_1} + \cpd{(F_1 / T)}{V_1}_T\paren{\cpd{V_1}{T}_{P_{base}} + \cpd{V_1}{P_{base}}_T\cpd{P_{base}}{T}_V}} \\
+			& \qquad\qquad - x_2T^2\paren{\cpd{(F_2 / T)}{T}_{V_2} + \cpd{(F_2 / T)}{V_2}_T\paren{\cpd{V_2}{T}_{P_{base}} + \cpd{V_2}{P_{base}}_T\cpd{P_{base}}{T}_V}}
+		\end{split} \\
+		\begin{split}
+			& = x_1\paren{E_1 - k_1T\cpd{F_1}{V_1}_T\paren{2TP_{base} + T^2\cpd{P_{base}}{T}_V}} \\
+			& \qquad\qquad + x_2\paren{E_2 - k_2T\cpd{F_2}{V_2}_T\paren{3T^2P_{base}^2 + 2T^3P_{base}\cpd{P_{base}}{T}_V}}
+		\end{split} \\
+		& = \paren{x_1E_1 + x_2E_2} - x_1P_1k_1T\paren{2TP_{base} + T^2\cpd{P_{base}}{T}_V} - x_2P_2k_2T\paren{3T^2P_{base}^2 + 2T^3P_{base}\cpd{P_{base}}{T}_V} \\
+		& = \paren{x_1E_1 + x_2E_2} - T^2P_{base}\paren{2x_1P_1k_1 + 3x_2P_2k_2TP_{base}} - T^3\paren{x_1P_1k_1 + 2x_2P_2k_2TP_{base}}\cpd{P_{base}}{T}_V \\
+		\begin{split}
+			& = \paren{x_1E_1 + x_2E_2} - T^2P_{base}\paren{2x_1P_1k_1 + 3x_2P_2k_2TP_{base}} \\
+			& \qquad\qquad + T^3\paren{x_1P_1k_1 + 2x_2P_2k_2TP_{base}} \cdot \frac{2k_1TP_{base} + 3k_2T^2P_{base}^2}{k_1T^2 + 2k_2T^3P_{base}}
+		\end{split} \\
+		\begin{split}
+			& = \paren{x_1E_1 + x_2E_2} \\
+			& \qquad\qquad - T^2P_{base}\paren{\paren{2x_1P_1k_1 + 3x_2P_2k_2TP_{base}} - (x_1P_1k_1 + 2x_2P_2k_2TP_{base}) \cdot \frac{2k_1 + 3k_2TP_{base}}{k_1 + 2k_2TP_{base}}}
+		\end{split} \numbereq
+	\end{align*}
+
+	It then suffices to show that
+	
+	\begin{equation}
+		\paren{2x_1P_1k_1 + 3x_2P_2k_2TP_{base}} = (x_1P_1k_1 + 2x_2P_2k_2TP_{base}) \cdot \frac{2k_1 + 3k_2TP_{base}}{k_1 + 2k_2TP_{base}}
+	\end{equation}
+
+	Since $F_1, F_2$ can be any function, $P_1, P_2$ can be considered as free variables so we need
+	
+	\begin{align*}
+		& \begin{cases}
+			2x_1P_1k_1 = x_1P_1k_1 \cdot \displaystyle\frac{2k_1 + 3k_2TP_{base}}{k_1 + 2k_2TP_{base}} \\ \\
+			3x_2P_1k_2TP_{base} = 2x_2P_2k_2TP_{base} \cdot \displaystyle\frac{2k_1 + 3k_2TP_{base}}{k_1 + 2k_2TP_{base}}
+		\end{cases} \numbereq \\ \Rightarrow\quad
+		& \begin{cases}
+			\displaystyle\frac{2k_1 + 3k_2TP_{base}}{k_1 + 2k_2TP_{base}} = 2 \\ \\
+			\displaystyle\frac{2k_1 + 3k_2TP_{base}}{k_1 + 2k_2TP_{base}} = \frac{3}{2}
+		\end{cases} \numbereq
+	\end{align*}
+
+	which is clearly impossible given $x_1, k_1, x_2, k_2$ are all nonzero.	
+	
+	\section{Counterproof}
+	We can prove that the property $E = x_jE_j$ is true if and only if it holds for $c = 2$. The only if clause is obvious, since if the property does not hold for $c = 2$, it is not always true. Now, suppose the property holds for $c = 2$. This can be proven by reverse binary splitting. \newline
+	
+	Consider two sets of substances with Helmholtz energies $\{F_{1, 1}, F_{1, 2}, \ldots, F_{1, j}, \ldots\}$ and $\{F_{2, 1}, F_{2, 2}, \ldots, F_{2, k}, \ldots\}$ and volumes $\{V_{1, 1}, V_{1, 2}, \ldots, V_{1, j}, \ldots\}$ and $\{V_{2, 1}, V_{2, 2}, \ldots, V_{2, k}, \ldots\}$. Then, suppose the two sets of substances have internal ratios (ratios among the sets) $\{x_{1, 1}, x_{1, 2}, \ldots, x_{1, j}, \ldots\}$ and $\{x_{2, 1}, x_{2, 2}, \ldots, x_{2, k}, \ldots\}$. Then, we get the combined Helmholtz energies and volumes
+
+	\begin{equation}
+		\begin{cases}
+			F_1 = \sum x_{1, j}F_{1, j} + \mc{C}T \\
+			F_2 = \sum x_{2, k}F_{2, k} + \mc{C}T
+		\end{cases}
+	\end{equation}
+	\begin{equation}
+		\begin{cases}
+			V_1 = \sum x_{1, j}V_{1, j} \\
+			V_2 = \sum x_{2, k}V_{2, k}
+		\end{cases}
+	\end{equation}
+
+	Then, we want to show that we can combine the two mixtures as two pure substances in the ratios $x_1, x_2$ where $x_1 + x_2 = 1$ and still get the same result. Then, we get
+	
+	\begin{align*}
+		F
+		& = x_1F_1 + x_2F_2 + \mc{C}T \\
+		& = x_1\sum x_{1, j}F_{1, j} + x_2\sum x_{2, k}F_{2, k} + \mc{C}T \\
+		& = \sum(x_1x_{1, j})F_{1, j} + \sum(x_2x_{2, k})F_{2, k} + \mc{C}T \numbereq
+	\end{align*}
+
+	and
+	
+	\begin{align*}
+		V
+		& = x_1V_1 + x_2V_2 \\
+		& = x_1\sum x_{1, j}V_{1, j} + x_2\sum x_{2, k}V_{2, k} \\
+		& = \sum(x_1x_{1, j})V_{1, j} + \sum(x_2x_{2, k})F_{2, k} \numbereq
+	\end{align*}
+
+	as desired. Since $P$ and $E$ are derivable from $F, V$, the pressure and free energy from combining the two mixtures will follow similarly to a combination of two pure substances. Thus if the property holds for two substances or $c = 2$, we can perform binary splitting on each of the two submixtures until we obtain "mixtures" of size 2 or 1, both of which should hold. Thus, we have proven that the property holds for all $c$ if and only if it holds for $c = 2$. Now, consider the equation
+	
+	\begin{align*}
+		E
+		& = \sum x_jE_j + T\sum x_j(P_j - P)\cpd{V_j}{T}_{P_j} \\
+		& = (x_1E_1 + x_2E_2) + T\paren{x_1(P_1 - P)\cpd{V_1}{T}_{P_1} + x_2(P_2 - P)\cpd{V_2}{T}_{P_2}} \numbereq
+	\end{align*}
+
+	Then we want to show that
+	
+	\begin{equation}
+		x_1(P_1 - P)\cpd{V_1}{T}_{P_1} + x_2(P_2 - P)\cpd{V_2}{T}_{P_2} = 0
+	\end{equation}
+	
+	Manipulating, we get
+	
+	\begin{align*}
+		& x_1(P_1 - P)\cpd{V_1}{T}_{P_1} + x_2(P_2 - P)\cpd{V_2}{T}_{P_2} = 0 \\ \Rightarrow\quad
+		& x_1P_1\cpd{V_1}{T}_{P_1} + x_2P_2\cpd{V_2}{T}_{P_2} = P\paren{x_1\cpd{V_1}{T}_{P_1} + x_2\cpd{V_2}{T}_{P_2}} \\ \Rightarrow\quad
+		\begin{split}
+			& \paren{x_1P_1\cpd{V_1}{T}_{P_1} + x_2P_2\cpd{V_2}{T}_{P_2}}\paren{x_1\cpd{V_1}{P_1}_T + x_2\cpd{V_2}{P_2}_T} \\
+			& \qquad\qquad = \paren{\paren{x_1\cpd{V_1}{T}_{P_1} + x_2\cpd{V_2}{T}_{P_2}}}\paren{x_1\cpd{V_1}{P_1}_TP_1 + x_2\cpd{V_2}{P_2}_TP_2}
+		\end{split} \\ \Rightarrow\quad
+		& P_1\cpd{V_1}{T}_{P_1}\cpd{V_2}{P_2}_T + P_2\cpd{V_2}{T}_{P_2}\cpd{V_1}{P_1}_T = P_2\cpd{V_1}{T}_{P_1}\cpd{V_2}{P_2}_T + P_1\cpd{V_2}{T}_{P_2}\cpd{V_1}{P_1}_T \\ \Rightarrow\quad
+		& (P_1 - P_2)\paren{\cpd{V_1}{T}_{P_1}\cpd{V_2}{P_2}_T - \cpd{V_2}{T}_{P_2}\cpd{V_1}{P_1}_T} = 0 \\ \Rightarrow\quad
+		& \cpd{V_1}{T}_{P_1}\cpd{V_2}{P_2}_T = \cpd{V_2}{T}_{P_2}\cpd{V_1}{P_1}_T \\ \Rightarrow\quad
+		& \cpd{P_1}{V_1}_T\cpd{V_1}{T}_{P_1} = \cpd{P_2}{V_2}_T\cpd{V_2}{T}_{P_2} \\ \Rightarrow\quad
+		& \cpd{P_1}{T}_{V_1} = \cpd{P_2}{T}_{V_2} \\ \Rightarrow\quad
+		& \cpd{P_{base}}{T}_{V_1} = \cpd{P_{base}}{T}_{V_2}
+	\end{align*}
+
+	However, this is true if and only if $\displaystyle\frac{V_1}{V_2}$ is constant.
+		
+	\section{Closed Form}
+	Since the $\cpd{P_j}{T}_{V_j}$ and $\cpd{V_j}{T}_{P_j}$ terms keep persisting, we might get some insight by trying to convert it to some other derivative. Allow $\mc{E} = \sum x_jE_j$. Note that we can use Clairaut's after reverting $P_j$ to $-\cpd{F_j}{V_j}_T$, then continuing
+	
+	\begin{align*}
+		\cpd{P_j}{T}_{V_j}
+		& = -\paren{\pd{}{T}\cpd{F_j}{V_j}_T}_{V_j} \\
+		& = -\paren{\pd{}{V_j}\cpd{F_j}{T}_{V_j}}_T \\
+		& = -\paren{\pd{}{V_j}\paren{\frac{F_j}{T} + T\cpd{(F_j / T)}{T}_{V_j}}} \\
+		& = -\frac{1}{T}\paren{\pd{}{V_j}(F_j - E_j)}_T \\
+		& = \frac{1}{T}\paren{P_j + \cpd{E_j}{V_j}_T} \numbereq
+	\end{align*}
+	
+	For $\cpd{V_j}{T}_{P_j}$ we get
+	
+	\begin{equation}
+		\cpd{V_j}{T}_{P_j} = -\cpd{V_j}{P_j}_T\cpd{P_j}{T}_{V_j} = \frac{1}{T}\frac{V_j}{B_j}\paren{P_j + \cpd{E_j}{V_j}_T}
+	\end{equation}
+
+	Then substituting into
+	
+	\begin{equation}
+		E = \mc{E} + T\sum x_j(P_j - P)\cpd{V_j}{T}_{P_j}
+	\end{equation}
+
+	we get
+		
+	\begin{align*}
+		E
+		& = \mc{E} + T\sum x_j(P_j - P)\cpd{V_j}{T}_{P_j} \\
+		& = \mc{E} + T\sum x_j(P_j - P) \cdot \frac{1}{T}\frac{V_j}{B_j}\paren{P + \cpd{E_j}{V_j}_T} \\
+		& = \mc{E} + \sum \frac{x_jV_j}{B_j}(P_j - P)\paren{P_j + \cpd{E_j}{V_j}_T} \\
+	\end{align*}
+
+
+	%$E_j = TS_j - PV_j = -T\cpd{F_j}{T}_{V_j} - PV_j$
+	
+	
+	$\pd{B}{P} = \frac{B}{P} + P\pd{(B / P)}{P}$
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

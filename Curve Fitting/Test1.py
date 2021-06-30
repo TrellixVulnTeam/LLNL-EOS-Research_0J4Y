@@ -33,6 +33,8 @@ if __name__ == '__main__':
     upper_region = x_list[threshold_lower_index:threshold_upper_index]
     derivative_dict = dict()
 
+    atomic_mass_dict, atomic_number_dict = dict(), dict()
+
     for element in complete_list:
         print(element)
         # y_list = [e.expression(element, log(e.P / (e.z ** (10 / 3))), i) - y_listH[i] for i in range(0, len(Var.domain), 10)]
@@ -40,8 +42,12 @@ if __name__ == '__main__':
         derivative_list = np.asarray([y_list[i + 1] - y_list[i] for i in range(len(dx_list))], dtype='float') / dx_list
         derivative_dict[element] = derivative_list[threshold_lower_index:threshold_upper_index]
 
-        pyplot.subplot(131)
+        pyplot.subplot(161)
         pyplot.plot(x_list, y_list)
+
+        atomic_mass_dict[element] = Engine.library[element].element.mass
+        atomic_number_dict[element] = Engine.library[element].element.atomic_number
+
         # pyplot.subplot(162)
 
         # smooth_derivative_list = Engine.smooth(x_list[:-1], derivative_list)
@@ -55,8 +61,8 @@ if __name__ == '__main__':
 
     coefficient_dict = {element: np.average(derivative_dict[element] / principal_component) for element in complete_list}
 
-    atomic_numbers = np.asarray([Engine.library[element].element.atomic_number for element in complete_list], dtype='float')
-    atomic_masses = np.asarray([Engine.library[element].element.mass for element in complete_list], dtype='float')
+    atomic_numbers = np.asarray(list(atomic_number_dict.values()), dtype='float')
+    atomic_masses = np.asarray(list(atomic_mass_dict.values()), dtype='float')
 
     '''pyplot.subplot(142)
     pyplot.scatter(atomic_masses, coefficients)
@@ -95,7 +101,7 @@ if __name__ == '__main__':
 
         linewidth = 3 / (Engine.library[element].element.atomic_number ** 0.5)
 
-        pyplot.subplot(132)
+        pyplot.subplot(162)
         pyplot.plot(x_list, residual_list, label=element, linewidth=linewidth)
 
         # SECTION: pyplot.subplot(163)
@@ -114,15 +120,34 @@ if __name__ == '__main__':
     print(constant_dict)
     constants = np.asarray(list(map(constant_dict.__getitem__, complete_list)))
 
-    # SECTION: pyplot.subplot(164)
+    pyplot.subplot(163)
+    pyplot.scatter(atomic_masses, coefficients, s=8, color='purple')
+    pyplot.subplot(164)
+    pyplot.scatter(atomic_masses, constants, s=8, color='black')
+
+    A = np.vstack(((1 / atomic_masses)[3:], np.ones(len(atomic_masses) - 3))).T
+    slope, intercept = np.linalg.lstsq(A, (constants / coefficients)[3:], rcond=None)[0]
+    print(slope, intercept)
+
+    pyplot.subplot(165)
+    pyplot.scatter(1 / atomic_masses, constants / coefficients, s=8, color='black')
+    pyplot.plot([0, 0.5], [intercept, intercept + slope / 2])
+
+    y_listRefShifted2 = y_listRefShifted + intercept
+
     # pyplot.scatter(atomic_masses, coefficients, s=3)
     # pyplot.scatter(atomic_masses, constants, s=3)
-    # SECTION: pyplot.subplot(165)
     # pyplot.scatter(atomic_masses, constants / coefficients, s=3)
 
-    critical_dict = dict()
-
     for element in complete_list:
+        print(element)
+        y_list = np.asarray([e.expression(element, log(e.P), i) for i in range(0, len(Var.domain), 10)], dtype='float') - y_listH
+        y_list = (y_list / coefficient_dict[element] - y_listRefShifted2) * atomic_mass_dict[element]
+
+        pyplot.subplot(166)
+        pyplot.plot(x_list, y_list)
+
+    '''for element in complete_list:
         print(element)
         mass = Engine.library[element].element.mass
 
@@ -135,11 +160,11 @@ if __name__ == '__main__':
                                      dtype='float')
 
         linewidth = 1 # 5 if element == 'H' else 1 # 3 / (Engine.library[element].element.atomic_number ** 0.5)
-        pyplot.subplot(133)
+        pyplot.subplot(166)
         pyplot.plot(x_list, y_list, linewidth=linewidth)
 
         # pyplot.subplot(142)
-        '''smooth_derivative_list = Engine.smooth(x_list[:-1], derivative_list)
+        smooth_derivative_list = Engine.smooth(x_list[:-1], derivative_list)
         c = -1
         for i in range(len(smooth_derivative_list)):
             if abs(smooth_derivative_list[i]) < 0.01:

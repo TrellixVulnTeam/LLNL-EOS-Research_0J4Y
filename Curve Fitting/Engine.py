@@ -51,15 +51,18 @@ class Engine:
     # SECTION: Smoothing ===============================================================================================
 
     @classmethod
-    def smooth(cls, x_values, y_values):
-        def kernel(x_star, x, scale):
-            return np.exp(-((x - x_star) ** 2) / (20 * scale ** 2))
+    def smooth(cls, x_values, y_values, kernels=None):
+        if kernels == None:
+            def kernel(x_star, x, denominator):
+                return np.exp(-((x - x_star) ** 2) / denominator)
 
-        scale = (x_values[-1] - x_values[0]) / (len(x_values) - 1)
+            scale = (x_values[-1] - x_values[0]) / (len(x_values) - 1)
+            denominator = 20 * scale ** 2
+            kernels = [[kernel(x_values[i], x_values[j], denominator) for j in range(len(x_values))] for i in range(len(x_values))]
+
         smooth_y_values = []
         for i in range(len(x_values)):
-            kernels = [kernel(x_values[i], x_values[j], scale) for j in range(len(x_values))]
-            smooth_y_values.append(sum(kernels[j] * y_values[j] for j in range(len(x_values))) / sum(kernels))
+            smooth_y_values.append(sum(kernels[i][j] * y_values[j] for j in range(len(x_values))) / sum(kernels[i]))
         return smooth_y_values
 
     # SECTION: Base functions ==========================================================================================

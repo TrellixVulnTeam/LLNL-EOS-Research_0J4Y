@@ -22,8 +22,8 @@ if __name__ == '__main__':
     x_list = np.asarray([Var.domain[i] for i in range(0, len(Var.domain), 10)], dtype='float')
     dx_list = np.asarray([x_list[i + 1] - x_list[i] for i in range(len(x_list) - 1)], dtype='float')
 
-    y_listH = np.asarray([e.expression('H', log(e.P / (e.z ** (10 / 3))), i) for i in range(0, len(Var.domain), 10)],
-                         dtype='float')
+    y_listH = Engine.smooth(x_list, np.asarray(
+        [e.expression('H', log(e.P / (e.z ** (10 / 3))), i) for i in range(0, len(Var.domain), 10)], dtype=float))
 
     threshold = (3, 4)
     threshold_lower_index, threshold_upper_index = 0, 0
@@ -41,9 +41,9 @@ if __name__ == '__main__':
     for element in complete_list:
         print(element)
         # y_list = [e.expression(element, log(e.P / (e.z ** (10 / 3))), i) - y_listH[i] for i in range(0, len(Var.domain), 10)]
-        y_dict[element] = (y_list := (np.asarray([e.expression(element, log(e.P), i) for i in range(0, len(Var.domain), 10)],
-                            dtype='float') - y_listH))
-        derivative_list = np.asarray([y_list[i + 1] - y_list[i] for i in range(len(dx_list))], dtype='float') / dx_list
+        y_dict[element] = (y_list := Engine.smooth(x_list, np.asarray(
+            [e.expression(element, log(e.P), i) for i in range(0, len(Var.domain), 10)], dtype=float) - y_listH))
+        derivative_list = np.asarray([y_list[i + 1] - y_list[i] for i in range(len(dx_list))], dtype=float) / dx_list
 
         y_threshold_dict[element] = y_list[threshold_lower_index:threshold_upper_index]
         derivative_dict[element] = derivative_list[threshold_lower_index:threshold_upper_index]

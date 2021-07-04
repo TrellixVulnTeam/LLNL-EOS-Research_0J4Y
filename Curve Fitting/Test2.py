@@ -29,7 +29,7 @@ if __name__ == '__main__':
     atomic_mass_dict, atomic_number_dict = dict(), dict()
 
     for element in complete_list:
-        print(element)
+        print(element, Engine.library[element].element.mass, Engine.library[element].mass)
         m, z = Engine.library[element].element.mass, Engine.library[element].element.atomic_number
         # y_list = [e.expression(element, log(e.P / (e.z ** (10 / 3))), i) - y_listH[i] for i in range(0, len(Var.domain), 10)]
         shifted_x_list = -np.asarray([e.expression(element, log(e.rho) / log(10), i) for i in reversed(var_domain)], dtype=float) + np.log10(m / z)

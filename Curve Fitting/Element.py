@@ -11,7 +11,6 @@ mendeleev.H.isotopes[2].atomic_mass = 3.016
 
 class Element:
     planck = 6.62607004e-34
-    pm = 1e-12
     amu = 1.66054e-27
     density_data = list(np.power(10, Var.domain))
     planck_data = [planck] * len(Var.domain)
@@ -27,7 +26,7 @@ class Element:
             self.element.mass = 3.016
         else:
             self.element = getattr(mendeleev, element_name)
-        self.atomic_radius, self.mass = self.element.vdw_radius * Element.pm, self.element.mass * Element.amu
+        self.atomic_radius, self.mass = self.element.vdw_radius, self.element.mass * Element.amu
 
         self.atomic_radius_data = [self.atomic_radius] * len(Var.domain)
         self.mass_data = [self.mass] * len(Var.domain)

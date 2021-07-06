@@ -14,10 +14,9 @@ if __name__ == '__main__':
         if len(directory) <= 2:
             complete_list.append(directory)
     complete_list = sorted(complete_list, key=lambda arg: Engine.library[arg].element.atomic_number)
-
-    # complete_list = ['D'] + complete_list[20:]
-
-    post_transition_metals = ['Al', 'Ga', 'In', 'Sn', 'Tl', 'Pb', 'Bi', 'Po', 'At']
+    complete_list[0] = 'H'
+    complete_list[1] = 'D'
+    complete_list[2] = 'T'
 
     x_list = np.asarray([Var.domain[i] for i in range(0, len(Var.domain), 10)], dtype='float')
     dx_list = np.asarray([x_list[i + 1] - x_list[i] for i in range(len(x_list) - 1)], dtype='float')
@@ -42,7 +41,7 @@ if __name__ == '__main__':
         derivative_list = np.asarray([y_list[i + 1] - y_list[i] for i in range(len(dx_list))], dtype='float') / dx_list
         derivative_dict[element] = derivative_list[threshold_lower_index:threshold_upper_index]
 
-        pyplot.subplot(161)
+        pyplot.subplot(151)
         pyplot.plot(x_list, y_list)
 
         atomic_mass_dict[element] = Engine.library[element].element.mass
@@ -99,37 +98,22 @@ if __name__ == '__main__':
         # derivative_list = np.asarray([(y_list[i + 1] - y_list[i]) / dx_list[i] for i in range(len(dx_list))], dtype='float')
         residual_list = y_list - coefficient_dict[element] * y_listRefShifted
 
-        linewidth = 3 / (Engine.library[element].element.atomic_number ** 0.5)
-
-        pyplot.subplot(162)
-        pyplot.plot(x_list, residual_list, label=element, linewidth=linewidth)
-
-        # SECTION: pyplot.subplot(163)
-        # pyplot.plot(x_list, y_list / coefficient_dict[element], linewidth=linewidth)
-
-        # noinspection PyTypeChecker
-        # smooth_derivative_list = Engine.smooth(x_list[:-1], derivative_list - coefficient_dict[element] * derivative_listRef)
-
-        # pyplot.subplot(164)
-        # pyplot.plot(x_list[:-1], smooth_derivative_list, label=element)
-        # pyplot.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
-
         constant_dict[element] = np.average(residual_list[threshold_lower_index:threshold_upper_index])
 
     print(coefficient_dict)
     print(constant_dict)
     constants = np.asarray(list(map(constant_dict.__getitem__, complete_list)))
 
-    pyplot.subplot(163)
+    pyplot.subplot(152)
     pyplot.scatter(atomic_masses, coefficients, s=8, color='purple')
-    pyplot.subplot(164)
+    pyplot.subplot(153)
     pyplot.scatter(atomic_masses, constants, s=8, color='black')
 
     A = np.vstack(((1 / atomic_masses)[3:], np.ones(len(atomic_masses) - 3))).T
     slope, intercept = np.linalg.lstsq(A, (constants / coefficients)[3:], rcond=None)[0]
     print(slope, intercept)
 
-    pyplot.subplot(165)
+    pyplot.subplot(154)
     pyplot.scatter(1 / atomic_masses, constants / coefficients, s=8, color='black')
     pyplot.plot([0, 0.5], [intercept, intercept + slope / 2])
 
@@ -144,7 +128,7 @@ if __name__ == '__main__':
         y_list = np.asarray([e.expression(element, log(e.P), i) for i in range(0, len(Var.domain), 10)], dtype='float') - y_listH
         y_list = (y_list / coefficient_dict[element] - y_listRefShifted2) * atomic_mass_dict[element]
 
-        pyplot.subplot(166)
+        pyplot.subplot(155)
         pyplot.plot(x_list, y_list)
 
     '''for element in complete_list:

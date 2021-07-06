@@ -14,34 +14,41 @@ if __name__ == '__main__':
         if len(directory) <= 2:
             complete_list.append(directory)
     complete_list = sorted(complete_list, key=lambda arg: Engine.library[arg].element.atomic_number)
-
-    # complete_list = ['D'] + complete_list[20:]
-
-    post_transition_metals = ['Al', 'Ga', 'In', 'Sn', 'Tl', 'Pb', 'Bi', 'Po', 'At']
+    complete_list[0] = 'H'
+    complete_list[1] = 'D'
+    complete_list[2] = 'T'
 
     x_list = np.asarray([Var.domain[i] for i in range(0, len(Var.domain), 10)], dtype='float')
-    dx_list = [x_list[i + 1] - x_list[i] for i in range(len(x_list) - 1)]
+    dx_list = np.asarray([x_list[i + 1] - x_list[i] for i in range(len(x_list) - 1)], dtype='float')
 
-    y_listH = np.asarray([e.expression('H', log(e.P / (e.z ** (10 / 3))), i) for i in range(0, len(Var.domain), 10)])
+    y_dict = dict()
+    y_listH = np.asarray([e.expression('H', log(e.P / (e.z ** (10 / 3))), i) for i in range(0, len(Var.domain), 10)], dtype='float')
 
-    threshold = 2.5
-    upper_region = list(filter(lambda arg: arg >= threshold, x_list[:-1]))
+    threshold = (3, 4)
+    threshold_lower_index, threshold_upper_index = 0, 0
+    while x_list[threshold_lower_index] < threshold[0]:
+        threshold_lower_index += 1
+    while x_list[threshold_upper_index] < threshold[1]:
+        threshold_upper_index += 1
+    upper_region = x_list[threshold_lower_index:threshold_upper_index]
     derivative_dict = dict()
+
+    atomic_mass_dict, atomic_number_dict = dict(), dict()
 
     for element in complete_list:
         print(element)
         # y_list = [e.expression(element, log(e.P / (e.z ** (10 / 3))), i) - y_listH[i] for i in range(0, len(Var.domain), 10)]
-        y_list = np.asarray([e.expression(element, log(e.P), i) for i in range(0, len(Var.domain), 10)]) - y_listH
+        y_list = np.asarray([e.expression(element, log(e.P), i) for i in range(0, len(Var.domain), 10)], dtype='float') - y_listH
+        y_dict[element] = y_list
 
-        derivative_list = [(y_list[i + 1] - y_list[i]) / dx_list[i] for i in range(len(dx_list))]
-        derivative_dict[element] = [derivative_list[i] for i in range(len(derivative_list)) if x_list[i] >= threshold]
+        derivative_list = np.asarray([y_list[i + 1] - y_list[i] for i in range(len(dx_list))], dtype='float') / dx_list
+        derivative_dict[element] = derivative_list[threshold_lower_index:threshold_upper_index]
 
         pyplot.subplot(151)
         pyplot.plot(x_list, y_list)
-        # pyplot.subplot(162)
 
-        # smooth_derivative_list = Engine.smooth(x_list[:-1], derivative_list)
-        # pyplot.plot(x_list[:-1], smooth_derivative_list, label=element)
+        atomic_mass_dict[element] = Engine.library[element].element.mass
+        atomic_number_dict[element] = Engine.library[element].element.atomic_number
 
     m = np.vstack([np.asarray(derivative_dict[element], dtype='float') for element in complete_list if element != 'H']).T
     U, S, Vt = np.linalg.svd(m)
@@ -49,139 +56,48 @@ if __name__ == '__main__':
     print(f'U: {U[:, 0]}')
     print(f'S: {S}')
 
-    coefficients = []
-    coefficient_dict = dict()
+    coefficient_dict = {element: np.average(derivative_dict[element] / principal_component) for element in complete_list}
 
-    reference_index = float('inf')
-    reference_element = ''
-    # pyplot.subplot(131)
-    for element in complete_list:
-        derivative_list = derivative_dict[element]
-        ratio = np.asarray([derivative_list[i] / principal_component[i] for i in range(len(derivative_list))], dtype='float')
-        coefficients.append((c := np.average(ratio)))
-        coefficient_dict[element] = c
-        # pyplot.scatter(upper_region, coefficient, s=1, label=element)
-        # pyplot.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
-
-    coefficients = np.asarray(coefficients, dtype='float')
-    atomic_numbers = np.asarray([Engine.library[element].element.atomic_number for element in complete_list], dtype='float')
-    atomic_masses = np.asarray([Engine.library[element].element.mass for element in complete_list], dtype='float')
-
-    '''pyplot.subplot(152)
-    pyplot.scatter(atomic_masses, coefficients)
-    pyplot.subplot(153)
-    pyplot.scatter(atomic_masses, coefficients ** 2)'''
-    # pyplot.subplot(133)
-    # pyplot.scatter(np.log(atomic_masses), np.log(coefficients))
+    atomic_numbers = np.asarray(list(atomic_number_dict.values()), dtype='float')
+    atomic_masses = np.asarray(list(atomic_mass_dict.values()), dtype='float')
 
     reference_element = 'D'
     print(f'Reference element: {reference_element}')
     Deuterium_coefficient = coefficient_dict[reference_element]
+    print(Deuterium_coefficient)
     for element in complete_list:
         coefficient_dict[element] /= Deuterium_coefficient
-    coefficients /= Deuterium_coefficient
+    coefficients = np.asarray(list(coefficient_dict.values()), dtype='float')
 
-    y_listRef = np.asarray([e.expression(reference_element, log(e.P / (e.z ** (10 / 3))), i) for i in
-                          range(0, len(Var.domain), 10)], dtype='float') - y_listH
-    derivative_listRef = np.asarray([(y_listRef[i + 1] - y_listRef[i]) / dx_list[i] for i in range(len(dx_list))], dtype='float')
+    pyplot.subplot(152)
+    pyplot.scatter(atomic_masses, coefficients, s=8, color='purple')
 
-    constant_dict = dict()
-    for element in complete_list:
-        print(element)
-        # y_list = np.asarray([e.expression(element, log(e.P / (e.z ** (10 / 3))), i) - y_listH[i] for i in
-                             # range(0, len(Var.domain), 10)], dtype='float')
-        y_list = np.asarray([e.expression(element, log(e.P), i) for i in
-                             range(0, len(Var.domain), 10)], dtype='float') - y_listH
-        derivative_list = np.asarray([(y_list[i + 1] - y_list[i]) / dx_list[i] for i in range(len(dx_list))], dtype='float')
-        residual_list = y_list - coefficient_dict[element] * y_listRef
+    rgb1 = [163, 160, 255]
+    rgb2 = [255, 211, 116]
 
-        log_z = np.log(Engine.library[element].element.atomic_number)
-        log_z = 1 if log_z == 0 else log_z
+    density_dict = dict()
 
-        linewidth = 3 / (Engine.library[element].element.atomic_number ** 0.5)
-        pyplot.subplot(152)
-        pyplot.plot(x_list, residual_list, linewidth=1)
+    for i in range(len(x_list)):
+        y_list = np.asarray([y_dict[element][i] for element in complete_list], dtype=float)
 
-        pyplot.subplot(153)
-        pyplot.plot(x_list, residual_list / y_listH, linewidth=linewidth)
+        density_dict[x_list[i]] = y_list
 
-        pyplot.subplot(154)
-        pyplot.plot(x_list, residual_list / (y_listH * log_z), linewidth=linewidth)
+        if i % 8 == 0:
+            color1 = '#' + ''.join([hex(256 + int(rgb1[k] * i / len(x_list)))[3:] for k in range(3)])
+            color2 = '#' + ''.join([hex(256 + int(rgb2[k] * (1 - i / len(x_list))))[3:] for k in range(3)])
 
-        pyplot.subplot(155)
-        pyplot.plot(x_list, residual_list / (y_listH * log_z ** (4 / 3)), linewidth=linewidth)
+            pyplot.subplot(153)
+            pyplot.scatter(atomic_masses, y_list, color=color1, s=5)
+            pyplot.plot(atomic_masses, y_list, color=color2, linewidth=0.5)
 
-        # noinspection PyTypeChecker
-        # smooth_derivative_list = Engine.smooth(x_list[:-1], derivative_list - coefficient_dict[element] * derivative_listRef)
+            divided_y_list = y_list / coefficients
+            pyplot.subplot(154)
+            pyplot.scatter(atomic_masses, divided_y_list, color=color1, s=5)
+            pyplot.plot(atomic_masses, divided_y_list, color=color2, linewidth=0.5)
 
-        # pyplot.subplot(164)
-        # pyplot.plot(x_list[:-1], smooth_derivative_list, label=element)
-        # pyplot.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
+            if i == 0:
+                pyplot.subplot(155)
+                pyplot.scatter((1 / atomic_masses)[3:], divided_y_list[3:], color=color1, s=5)
+                pyplot.plot((1 / atomic_masses)[3:], divided_y_list[3:], color=color2, linewidth=0.5)
 
-        constant_dict[element] = np.average(np.asarray([residual_list[i] for i in range(len(residual_list)) if x_list[i] >= threshold], dtype='float'))
-
-    print(coefficient_dict)
-    print(constant_dict)
-    constants = np.asarray(list(map(constant_dict.__getitem__, complete_list)))
-
-    # SECTION: pyplot.subplot(164)
-    # pyplot.scatter(atomic_masses, coefficients, s=3)
-    # pyplot.scatter(atomic_masses, constants, s=3)
-    # SECTION: pyplot.subplot(165)
-    # pyplot.scatter(atomic_masses, constants / coefficients, s=3)
-
-    '''constantToCoefficientRatio = max(constants / coefficients)
-    print(f'Constant to Coefficient Ratio: {constantToCoefficientRatio}')
-
-    y_listRefShifted = y_listRef + constantToCoefficientRatio
-
-    critical_dict = dict()
-
-    for element in complete_list:
-        print(element)
-        mass = Engine.library[element].element.mass
-
-        # y_list = np.asarray([e.expression(element, log(e.P / (e.z ** (10 / 3))), i) - y_listH[i] for i in
-                             # range(0, len(Var.domain), 10)], dtype='float')
-        y_list = np.asarray([e.expression(element, log(e.P), i) for i in range(0, len(Var.domain), 10)], dtype='float')
-        y_list = y_list - (y_listH + coefficient_dict[element] * y_listRef + constant_dict[element])
-        derivative_list = np.asarray([(y_list[i + 1] - y_list[i]) / dx_list[i] for i in range(len(dx_list))],
-                                     dtype='float')
-
-        linewidth = 1 # 5 if element == 'H' else 1 # 3 / (Engine.library[element].element.atomic_number ** 0.5)
-        # pyplot.subplot(151)
-        # pyplot.plot(x_list, y_list, linewidth=linewidth)
-
-        # pyplot.subplot(152)
-        smooth_derivative_list = Engine.smooth(x_list[:-1], derivative_list)
-        c = -1
-        for i in range(len(smooth_derivative_list)):
-            if abs(smooth_derivative_list[i]) < 0.01:
-                c = i
-                break
-        critical_dict[element] = x_list[c] # x_list[(c := np.argmin(np.abs(smooth_derivative_list)))]
-        # pyplot.plot(x_list[:-1], smooth_derivative_list, linewidth=linewidth, label=element)
-
-        # pyplot.legend(loc='upper right')
-
-        # pyplot.subplot(151)
-        # pyplot.scatter(x_list[c], y_list[c], c='black', marker='o', s=5)
-
-        # pyplot.plot(x_list, y_list - coefficient_dict[element] * y_listRefShifted, '--', linewidth=linewidth)
-
-    critical_values = np.asarray(list(critical_dict.values()), dtype='float')
-    print(complete_list[20:30])
-    # print(list(map(lambda arg: Engine.library[arg].element.ionic_radius, complete_list[20:30])))
-
-    # pyplot.subplot(153)
-    # pyplot.plot(atomic_masses[20:30], np.cbrt(atomic_masses / np.power(10, critical_values))[20:30], c='black', marker='o')
-    # pyplot.plot(atomic_masses, np.cbrt(atomic_masses / np.power(10, critical_values)), c='black', marker='o')
-
-    # pyplot.subplot(154)
-    # pyplot.plot(np.log(atomic_masses), coefficients, marker='o')
-
-    for element in complete_list:
-        e.plot(element, log(e.P), 131)
-        e.plot(element, e.Bp, 132, x_expr=log((1 / e.nP - e.Bp) / e.P))
-        e.plot(element, e.Bp / (e.z ** (1 / 3)), 133, x_expr=log((1 / e.nP - e.Bp) / e.P))'''
     pyplot.show()

@@ -9,6 +9,7 @@ from matplotlib import pyplot
 
 
 class Engine:
+    complete_list = None
     library = Library()
     delta = 0.0001
     units = ['kg', 'm', 's']
@@ -47,6 +48,16 @@ class Engine:
             self.var_dict[base_var] = lambda element, index, var=base_var: Engine.base(element, var, index)
             normalized_var = Engine.normalized_variables[base_var]
             self.var_dict[normalized_var] = lambda element, index, var=base_var: self.normalized(element, var, index)
+
+        complete_list = []
+        for directory in os.listdir('Elements'):
+            if len(directory) <= 2:
+                complete_list.append(directory)
+        complete_list = sorted(complete_list, key=lambda arg: Engine.library[arg].element.atomic_number)
+        complete_list[0] = 'H'
+        complete_list[1] = 'D'
+        complete_list[2] = 'T'
+        Engine.complete_list = complete_list
 
     # SECTION: Smoothing ===============================================================================================
 

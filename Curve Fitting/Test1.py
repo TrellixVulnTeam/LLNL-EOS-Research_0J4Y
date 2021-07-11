@@ -36,7 +36,6 @@ if __name__ == '__main__':
 
     for element in complete_list:
         print(element)
-        # y_list = [e.expression(element, log(e.P / (e.z ** (10 / 3))), i) - y_listH[i] for i in range(0, len(Var.domain), 10)]
         y_list = np.asarray([e.expression(element, log(e.P), i) for i in range(0, len(Var.domain), 10)], dtype='float') - y_listH
         derivative_list = np.asarray([y_list[i + 1] - y_list[i] for i in range(len(dx_list))], dtype='float') / dx_list
         derivative_dict[element] = derivative_list[threshold_lower_index:threshold_upper_index]

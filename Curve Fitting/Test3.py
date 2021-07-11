@@ -27,7 +27,6 @@ if __name__ == '__main__':
         print(element)
         m, z = Engine.library[element].element.mass, Engine.library[element].element.atomic_number
         r = Engine.library[element].atomic_radius
-        # y_list = [e.expression(element, log(e.P / (e.z ** (10 / 3))), i) - y_listH[i] for i in range(0, len(Var.domain), 10)]
         shifted_x_list = -np.asarray([e.expression(element, log(e.rho) / log(10), i) for i in reversed(var_domain)],
                                      dtype=float) + np.log10(m / z)
         shifted_x_dict[element] = shifted_x_list
@@ -74,9 +73,10 @@ if __name__ == '__main__':
 
     y_dict = normalized_y_dict
     initial_y_dict = {element: y_dict[element][0] for element in complete_list}
+    initial_values = np.asarray(list(initial_y_dict.values()), dtype=float)
 
     pyplot.subplot(162)
-    pyplot.scatter(np.log(atomic_numbers), list(initial_y_dict.values()), color='black', s=5)
+    pyplot.scatter(atomic_numbers, np.exp(initial_values), color='black', s=5)
 
     x_list = constrained_x_list
     dx_list = np.asarray([x_list[i + 1] - x_list[i] for i in range(len(x_list) - 1)], dtype=float)

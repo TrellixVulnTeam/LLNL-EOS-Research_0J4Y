@@ -34,7 +34,12 @@ class Element:
 
         self.bulk_data = list(map(Var(np.loadtxt(f'Elements/{self.name}/Bulk_Test_{self.name}.dat')), np.power(10, Var.domain)))
         self.bulk_prime_data = list(map(Var(np.loadtxt(f'Elements/{self.name}/BulkPrime_Test_{self.name}.dat')), np.power(10, Var.domain)))
-        self.pressure_data = list(map(Var(np.loadtxt(f'Elements/{self.name}/{self.name}.purgv157_rho_Pcgs.dat.fix')), np.power(10, Var.domain)))
+        self.pressure_data = list(map(Var(np.loadtxt(f'Purg Data/{self.name}.purgv157_rho_Pcgs.dat.fix')), np.power(10, Var.domain)))
+        assert len(self.pressure_data) > 10, 'No data read'
+        try:
+            self.tf_data = list(map(Var(np.loadtxt(f'TF Data/{self.name}_TFCC_rhoPccgs.dat')), np.power(10, Var.domain)))
+        except OSError:
+            pass
 
     def __getitem__(self, var):
         if var == sympy.symbols('B'):

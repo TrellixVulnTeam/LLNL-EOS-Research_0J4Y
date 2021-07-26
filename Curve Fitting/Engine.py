@@ -13,11 +13,12 @@ class Engine:
     library = Library()
     delta = 0.0001
     units = ['kg', 'm', 's']
-    P, B, Bp, rho, h, r, m, z = symbols('P B Bp rho h r m z')
-    nP, nB, nBp, nrho, nh, nr, nm, nz = symbols('nP nB nBp nrho nh nr nm nz')
-    base_variables = [P, B, Bp, rho, h, r, m, z]
-    normalized_variables = {P: nP, B: nB, Bp: nBp, rho: nrho, h: nh, r: nr, m: nm, z: nz}
-    var_units = {P  :   {'kg': 1,   'm': -1,    's': -2},
+    tP, P, B, Bp, rho, h, r, m, z = symbols('tP P B Bp rho h r m z')
+    ntP, nP, nB, nBp, nrho, nh, nr, nm, nz = symbols('ntP nP nB nBp nrho nh nr nm nz')
+    base_variables = [tP, P, B, Bp, rho, h, r, m, z]
+    normalized_variables = {tP: ntP, P: nP, B: nB, Bp: nBp, rho: nrho, h: nh, r: nr, m: nm, z: nz}
+    var_units = {tP :   {'kg': 1,   'm': -1,    's': -2},
+                 P  :   {'kg': 1,   'm': -1,    's': -2},
                  B  :   {'kg': 1,   'm': -1,    's': -2},
                  Bp :   {'kg': 0,   'm': 0,     's': 0},
                  rho:   {'kg': 1,   'm': -3,    's': 0},
@@ -62,7 +63,7 @@ class Engine:
     # SECTION: Smoothing ===============================================================================================
 
     @classmethod
-    def smooth(cls, x_values, y_values, kernels=None):
+    def kernel_smooth(cls, x_values, y_values, kernels=None):
         if kernels == None:
             def kernel(x_star, x, denominator):
                 return np.exp(-((x - x_star) ** 2) / denominator)
@@ -71,10 +72,24 @@ class Engine:
             denominator = 20 * scale ** 2
             kernels = [[kernel(x_values[i], x_values[j], denominator) for j in range(len(x_values))] for i in range(len(x_values))]
 
+        buffer = 10
+        n = len(y_values)
         smooth_y_values = []
-        for i in range(len(x_values)):
-            smooth_y_values.append(sum(kernels[i][j] * y_values[j] for j in range(len(x_values))) / sum(kernels[i]))
-        return smooth_y_values
+
+        for i in range(buffer, n - buffer):
+            smooth_y_values.append(sum(kernels[i][j] * y_values[j] for j in range(len(y_values))) / sum(kernels[i][:n]))
+        smooth_y_values = list(y_values[:buffer]) + smooth_y_values + list(y_values[-buffer:])
+
+        return np.asarray(smooth_y_values, dtype=float)
+
+    @classmethod
+    def SMA_smooth(cls, y_values, buffer=80):
+        smooth_y_values = []
+        total = sum(y_values[:buffer - 1]) + y_values[-1]
+        for i in range(-1, len(y_values) - buffer - 1):
+            total += (y_values[i + buffer] - y_values[i])
+            smooth_y_values.append(total / buffer)
+        return np.asarray(smooth_y_values, dtype=float)
 
     # SECTION: Base functions ==========================================================================================
 

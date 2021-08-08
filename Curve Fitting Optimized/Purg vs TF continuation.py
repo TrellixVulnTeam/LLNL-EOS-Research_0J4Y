@@ -199,7 +199,7 @@ if __name__ == '__main__':
                r'$\log_{10}\left(\frac{m \cdot z^{' + str(x_scale) + r'}}{\rho}\right)$',
                r'$\left(1 - \frac{P_{purgatorio}}{P_{TF}}\right) \cdot z^{' + str(y_scale) + r'\cdot x}$')
                # r'$\log_{10}\left(\frac{P_{TF}}{P_{purgatorio}}\right) \cdot z^{' + str(y_scale) + r'\cdot x}$')
-    figure6.savefig('Diagrams2/Scaled Residual Logarithmic Derivative with Theorized Shift', bbox_inches='tight')
+    figure6.savefig('Diagrams2/Scaled Residual with Theorized Shift', bbox_inches='tight')
 
     pyplot.figure(7)
     # pyplot.yscale('log')
@@ -207,10 +207,10 @@ if __name__ == '__main__':
                r'$\log_{10}\left(\frac{m \cdot z^{' + str(x_scale) + r'}}{\rho}\right)$',
                r'$\left(1 - \frac{P_{purgatorio}}{P_{TF}}\right) \cdot (z / z^*)^{' + str(y_scale) + r'\cdot x}$')
                # r'$\log_{10}\left(\frac{P_{TF}}{P_{purgatorio}}\right) \cdot (z / z^*)^{' + str(y_scale) + r'\cdot x}$')
-    figure7.savefig('Diagrams2/Scaled Residual Logarithmic Derivative (Reference) with Theorized Shift', bbox_inches='tight')
+    figure7.savefig('Diagrams2/Scaled Residual (Reference) with Theorized Shift', bbox_inches='tight')
 
 
-    closed_figures = [2, 3, 4, 5, 6]
+    closed_figures = [2, 3, 4, 6]
     for n in closed_figures:
         pyplot.close(eval(f'figure{n}'))
 
